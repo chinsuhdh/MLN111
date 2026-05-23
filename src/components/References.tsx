@@ -1,131 +1,255 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import { FileText, BookMarked } from 'lucide-react';
 import AnimatedView from './AnimatedView';
-import { BookMarked, ExternalLink } from 'lucide-react';
+import Tooltip from './Tooltip';
 
-const REFERENCES = [
-  {
-    id: 1,
-    authors: 'Bộ Giáo dục và Đào tạo',
-    year: '2021',
-    title: 'Giáo trình Triết học Mác – Lênin',
-    publisher: 'NXB Chính trị Quốc gia Sự thật, Hà Nội',
-    tag: 'Giáo trình chính thức',
-  },
-  {
-    id: 2,
-    authors: 'Đảng Cộng sản Việt Nam',
-    year: '2021',
-    title: 'Văn kiện Đại hội đại biểu toàn quốc lần thứ XIII',
-    publisher: 'NXB Chính trị Quốc gia Sự thật, Hà Nội',
-    tag: 'Văn kiện Đảng',
-  },
-  {
-    id: 3,
-    authors: 'Hội đồng Trung ương chỉ đạo biên soạn',
-    year: '2019',
-    title: 'Giáo trình Tư tưởng Hồ Chí Minh (dành cho bậc đại học không chuyên lý luận chính trị)',
-    publisher: 'NXB Chính trị Quốc gia Sự thật',
-    tag: 'Giáo trình chính thức',
-  },
-  {
-    id: 4,
-    authors: 'Karl Marx & Friedrich Engels',
-    year: '1848',
-    title: 'Tuyên ngôn của Đảng Cộng sản',
-    publisher: 'Trong: Marx-Engels Toàn tập, NXB Chính trị Quốc gia',
-    tag: 'Tác phẩm kinh điển',
-  },
-  {
-    id: 5,
-    authors: 'Hồ Chí Minh',
-    year: '2011',
-    title: 'Hồ Chí Minh Toàn tập (Tập 1–15)',
-    publisher: 'NXB Chính trị Quốc gia Sự thật, Hà Nội',
-    tag: 'Tư tưởng HCM',
-  },
-  {
-    id: 6,
-    authors: 'Nguyễn Phú Trọng',
-    year: '2022',
-    title: 'Một số vấn đề lý luận và thực tiễn về chủ nghĩa xã hội và con đường đi lên chủ nghĩa xã hội ở Việt Nam',
-    publisher: 'NXB Chính trị Quốc gia Sự thật',
-    tag: 'Lý luận hiện đại',
-  },
-];
+interface Section {
+  id: number;
+  title: string;
+  content: string;
+  subsections?: {
+    title: string;
+    details: string[];
+  }[];
+}
 
-const TAG_COLORS: Record<string, string> = {
-  'Giáo trình chính thức': 'bg-navy/40 text-white/80',
-  'Văn kiện Đảng': 'bg-dred/40 text-white/80',
-  'Tác phẩm kinh điển': 'bg-beige/20 text-beige',
-  'Tư tưởng HCM': 'bg-beige/20 text-beige',
-  'Lý luận hiện đại': 'bg-white/10 text-white/70',
+interface DocumentData {
+  title: string;
+  sections: Section[];
+}
+
+/**
+ * Format citation:
+ * [[1]]
+ * [[1,2,3]]
+ */
+const formatTextWithCitations = (text: string) => {
+  if (!text) return text;
+
+  // Regex match [[1]] hoặc [[1,2]]
+  const regex = /(\[\[[\d,\s]+\]\])/g;
+
+  // Tách text thành nhiều phần
+  const parts = text.split(regex);
+
+  return parts.map((part, index) => {
+    // Kiểm tra citation
+    if (part.startsWith('[[') && part.endsWith(']]')) {
+      const match = part.match(/\[\[([\d,\s]+)\]\]/);
+
+      if (match) {
+        const numbers = match[1]
+          .split(',')
+          .map((n) => n.trim());
+
+        return (
+          <sup
+            key={index}
+            className="ml-1 inline-flex gap-0.5 select-none align-super"
+          >
+            {numbers.map((num, i) => (
+              <span
+                key={i}
+                className="
+                  inline-flex items-center justify-center
+                  bg-dred/15
+                  text-beige
+                  border border-dred/30
+                  rounded-[3px]
+                  px-1.5 py-0.5
+                  text-[9px]
+                  font-sans font-bold
+                  tracking-widest
+                  cursor-help
+                  hover:bg-dred/30
+                  hover:text-white
+                  transition-colors
+                "
+                title={`Nguồn trích dẫn: ${num}`}
+              >
+                {num}
+              </span>
+            ))}
+          </sup>
+        );
+      }
+    }
+
+    return <span key={index}>{part}</span>;
+  });
 };
 
 export default function References() {
-  return (
-    <section id="section-references" className="py-20 lg:py-32 bg-navy-dark relative overflow-hidden">
-      {/* Background texture */}
-      <div className="absolute inset-0 opacity-[0.03] bg-[radial-gradient(circle_at_25%_50%,_#D4A373_1px,_transparent_1px),_radial-gradient(circle_at_75%_50%,_#D4A373_1px,_transparent_1px)] bg-[size:48px_48px] pointer-events-none" />
+  const [doc, setDoc] = useState<DocumentData | null>(null);
 
-      <div className="relative z-10 max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-16">
-        {/* Heading */}
+  useEffect(() => {
+    fetch('/MLN111.json')
+      .then((res) => res.json())
+      .then((data) => setDoc(data))
+      .catch((err) => console.error('Lỗi tải tài liệu:', err));
+  }, []);
+
+  return (
+    <section
+      id="section-references"
+      className="
+        py-20 lg:py-32
+        bg-navy-dark
+        relative
+        overflow-hidden
+      "
+    >
+      {/* Background Pattern */}
+      <div
+        className="
+          absolute inset-0
+          opacity-[0.03]
+          bg-[radial-gradient(circle_at_25%_50%,_#D4A373_1px,_transparent_1px),_radial-gradient(circle_at_75%_50%,_#D4A373_1px,_transparent_1px)]
+          bg-[size:48px_48px]
+          pointer-events-none
+        "
+      />
+
+      <div className="relative z-10 w-full max-w-none mx-auto px-6 md:px-16 2xl:px-28">
+        
+        {/* Header */}
         <AnimatedView className="text-center mb-14">
-          <div className="inline-flex items-center gap-3 mb-5 px-5 py-2.5 rounded-full bg-beige/10 border border-beige/20">
-            <BookMarked size={16} className="text-beige" />
-            <span className="section-eyebrow text-beige mb-0 tracking-widest">Tài liệu tham khảo</span>
-          </div>
-          <h2
-            className="font-serif font-bold text-white"
-            style={{ fontSize: 'clamp(1.8rem, 4vw, 3rem)' }}
+          <div
+            className="
+              inline-flex items-center gap-3
+              mb-5 px-5 py-2.5
+              rounded-full
+              bg-beige/10
+              border border-beige/20
+            "
           >
-            Nguồn trích dẫn &amp; Tài liệu học thuật
+            <BookMarked size={16} className="text-beige" />
+
+            <span className="section-eyebrow text-beige mb-0 tracking-widest">
+              Tài liệu
+            </span>
+          </div>
+
+          <h2
+            className="
+              font-serif font-bold
+              text-white
+              text-3xl sm:text-4xl
+            "
+          >
+            {doc ? doc.title : 'Đang tải tài liệu...'}
           </h2>
-          <p className="text-white/50 max-w-2xl mx-auto mt-4 text-base lg:text-lg leading-relaxed">
-            Các công trình nghiên cứu và văn kiện chính thức được sử dụng làm cơ sở lý luận cho bài trình bày.
-          </p>
-          <div className="w-20 h-0.5 mx-auto mt-6 bg-gradient-to-r from-beige/60 via-dred/60 to-transparent" />
+
+          <div
+            className="
+              w-20 h-0.5
+              mx-auto mt-6
+              bg-gradient-to-r
+              from-beige/60
+              via-dred/60
+              to-transparent
+            "
+          />
         </AnimatedView>
 
-        {/* References grid */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-          {REFERENCES.map((ref, i) => (
+        {/* Content */}
+        <div className="max-w-4xl mx-auto space-y-8">
+          {doc?.sections.map((section, index) => (
             <AnimatedView
-              key={ref.id}
-              delay={i * 0.07}
-              className="group rounded-2xl p-6 lg:p-8 bg-white/5 border border-white/10 hover:border-beige/30 hover:bg-white/8 transition-all duration-300"
+              key={section.id}
+              delay={index * 0.1}
             >
-              <div className="flex items-start gap-4">
-                {/* Number */}
-                <span className="font-serif text-4xl lg:text-5xl font-bold text-beige/20 leading-none flex-shrink-0 group-hover:text-beige/35 transition-colors duration-300">
-                  {String(ref.id).padStart(2, '0')}
-                </span>
+              <div
+                className="
+                  rounded-3xl
+                  p-8 sm:p-10
+                  bg-white/5
+                  border border-white/10
+                  hover:border-beige/30
+                  transition-all duration-300
+                "
+              >
+                {/* Section Header */}
+                <div className="flex items-center gap-4 mb-6">
+                  <div
+                    className="
+                      w-12 h-12
+                      rounded-xl
+                      flex items-center justify-center
+                      bg-dred/10
+                      text-dred
+                      shrink-0
+                    "
+                  >
+                    <FileText size={24} />
+                  </div>
 
-                <div className="flex-1 min-w-0">
-                  {/* Tag */}
-                  <span className={`inline-block px-2.5 py-0.5 rounded-full text-xs font-semibold mb-3 ${TAG_COLORS[ref.tag] ?? 'bg-white/10 text-white/60'}`}>
-                    {ref.tag}
-                  </span>
-
-                  {/* Authors & year */}
-                  <p className="text-beige/60 text-xs font-semibold mb-1.5">
-                    {ref.authors} <span className="text-white/30">·</span> {ref.year}
-                  </p>
-
-                  {/* Title */}
-                  <p className="text-white font-serif font-semibold text-sm lg:text-base leading-snug mb-3">
-                    {ref.title}
-                  </p>
-
-                  {/* Publisher */}
-                  <p className="text-white/35 text-xs italic leading-relaxed">
-                    {ref.publisher}
-                  </p>
+                  <h3
+                    className="
+                      font-serif font-bold
+                      text-2xl
+                      text-white
+                      leading-tight
+                    "
+                  >
+                    {section.title}
+                  </h3>
                 </div>
-              </div>
 
-              {/* Hover accent */}
-              <div className="mt-4 flex items-center gap-1.5 text-beige/0 group-hover:text-beige/50 transition-colors duration-300 text-xs font-medium">
-                <ExternalLink size={12} />
-                <span>Tài liệu gốc</span>
+                {/* Main Content */}
+                <div
+                  className="
+                    text-white/70
+                    leading-relaxed
+                    mb-6
+                    text-base sm:text-lg
+                  "
+                >
+                  {formatTextWithCitations(section.content)}
+                </div>
+
+                {/* Subsections */}
+                {section.subsections?.map((sub, i) => (
+                  <div
+                    key={i}
+                    className="
+                      mt-6
+                      pl-5 sm:pl-6
+                      border-l-2 border-beige/20
+                    "
+                  >
+                    <h4
+                      className="
+                        font-bold
+                        text-beige
+                        mb-3
+                        text-lg
+                      "
+                    >
+                      {sub.title}
+                    </h4>
+
+                    <ul
+                      className="
+                        list-disc
+                        list-outside
+                        pl-4
+                        space-y-2
+                        text-white/60
+                        text-sm sm:text-base
+                        leading-relaxed
+                      "
+                    >
+                      {sub.details.map((detail, d) => (
+                        <li key={d}>
+                          {formatTextWithCitations(detail)}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
               </div>
             </AnimatedView>
           ))}

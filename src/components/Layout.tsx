@@ -18,7 +18,7 @@ const NAV_LINKS = [
   { href: '#section-hcm',          label: 'Tư tưởng HCM'     },
   { href: '#section-dang',         label: 'Quan điểm Đảng'   },
   { href: '#section-mindmap',      label: 'Sơ đồ tư duy'     },
-  { href: '#section-quiz',         label: 'Trắc nghiệm'      },
+  { href: '#section-references',   label: 'Tài liệu'         }, // Thêm dòng này
 ];
 
 function Navbar() {

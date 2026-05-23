@@ -10,6 +10,7 @@ const TOC_SECTIONS = [
   { id: 'section-dang',         label: 'Quan điểm Đảng',          num: '04' },
   { id: 'section-mindmap',      label: 'Sơ đồ tư duy',            num: '05' },
   { id: 'section-quiz',         label: 'Trắc nghiệm',             num: '06' },
+  { id: 'section-references',   label: 'Tài liệu tham khảo',      num: '07' }, // Thêm dòng này
 ];
 
 export default function TOC() {
