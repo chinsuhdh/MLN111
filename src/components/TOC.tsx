@@ -6,11 +6,9 @@ const TOC_SECTIONS = [
   { id: 'hero',                 label: 'Giới thiệu',              num: '00' },
   { id: 'section-canhan-xahoi', label: 'Cá nhân & Xã hội',        num: '01' },
   { id: 'section-quanchung',    label: 'Quần chúng Nhân dân',     num: '02' },
-  { id: 'section-hcm',          label: 'Tư tưởng Hồ Chí Minh',   num: '03' },
-  { id: 'section-dang',         label: 'Quan điểm Đảng',          num: '04' },
-  { id: 'section-mindmap',      label: 'Sơ đồ tư duy',            num: '05' },
-  { id: 'section-quiz',         label: 'Trắc nghiệm',             num: '06' },
-  { id: 'section-references',   label: 'Tài liệu tham khảo',      num: '07' }, // Thêm dòng này
+  { id: 'section-casestudy',    label: 'Phân tích Tình huống',    num: '03' },
+  { id: 'section-mindmap',      label: 'Sơ đồ tư duy',            num: '04' },
+  { id: 'section-references',   label: 'Tài liệu tham khảo',      num: '05' }, 
 ];
 
 export default function TOC() {

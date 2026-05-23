@@ -15,10 +15,9 @@ function ScrollProgress() {
 const NAV_LINKS = [
   { href: '#section-canhan-xahoi', label: 'Cá nhân & Xã hội' },
   { href: '#section-quanchung',    label: 'Quần chúng'        },
-  { href: '#section-hcm',          label: 'Tư tưởng HCM'     },
-  { href: '#section-dang',         label: 'Quan điểm Đảng'   },
+  { href: '#section-casestudy',    label: 'Tình huống'       },
   { href: '#section-mindmap',      label: 'Sơ đồ tư duy'     },
-  { href: '#section-references',   label: 'Tài liệu'         }, // Thêm dòng này
+  { href: '#section-references',   label: 'Tài liệu'         },
 ];
 
 function Navbar() {
@@ -56,7 +55,6 @@ function Navbar() {
           : 'backdrop-blur-[8px] bg-bg/75'
       }`}
     >
-      {/* Full-width container — no max-w constraint */}
       <div className="w-full max-w-none px-6 md:px-16 2xl:px-28">
         <div className="flex items-center justify-between h-20 lg:h-24 2xl:h-28">
 
@@ -128,7 +126,6 @@ function Navbar() {
 function Footer() {
   return (
     <footer className="py-20 2xl:py-32 bg-navy-dark">
-      {/* Full-width — no max-w constraint */}
       <div className="w-full max-w-none px-6 md:px-16 2xl:px-28 text-center">
         <div className="flex items-center justify-center gap-4 mb-8 2xl:mb-12">
           <span
@@ -145,10 +142,10 @@ function Footer() {
 
         <blockquote className="max-w-4xl mx-auto mb-12 2xl:mb-16">
           <p className="font-serif italic text-white/70 text-2xl 2xl:text-4xl leading-relaxed">
-            "Không có gì quý hơn độc lập, tự do."
+            "Sự phát triển tự do của mỗi người là điều kiện cho sự phát triển tự do của tất cả mọi người."
           </p>
           <cite className="block mt-4 not-italic font-sans text-sm 2xl:text-lg font-bold tracking-widest uppercase text-beige opacity-70">
-            — Hồ Chí Minh
+            — C.Mác & Ph.Ăng-ghen
           </cite>
         </blockquote>
 
@@ -170,9 +167,9 @@ function Footer() {
         </div>
 
         <p className="text-white/25 text-sm 2xl:text-base leading-relaxed">
-          &copy; 2025 · Triết học Mác – Lênin &amp; Tư tưởng Hồ Chí Minh · Cống hiến cho sự nghiệp nghiên cứu học thuật
+          &copy; 2026 · Triết học Mác – Lênin · Cống hiến cho sự nghiệp nghiên cứu học thuật
         </p>
-        <p className="text-white/15 text-xs 2xl:text-sm mt-2">Viện Triết Học · Thư viện số &amp; Liên hệ tổ chức</p>
+        <p className="text-white/15 text-xs 2xl:text-sm mt-2">Đồ án môn học · Thư viện số &amp; Tài liệu tham khảo</p>
       </div>
     </footer>
   );

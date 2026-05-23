@@ -7,8 +7,6 @@ import Tooltip from './Tooltip';
 type QuoteData = {
   text: string;
   author: string;
-  source: string;
-  year: string;
 };
 
 type NodeData = {
@@ -21,18 +19,18 @@ type NodeData = {
 };
 
 const QUOTE_DATABASE: Record<string, QuoteData> = {
-  core: { text: "Trong tính hiện thực của nó, bản chất con người là tổng hòa những quan hệ xã hội.", author: "Karl Marx", source: "Luận cương về Phoi-ơ-bắc", year: "1845" },
-  ca_nhan: { text: "Mỗi cá nhân là một thực thể xã hội mang tính cá nhân.", author: "Giáo trình Triết học", source: "NXB Chính trị Quốc gia", year: "2021" },
-  xa_hoi: { text: "Tồn tại xã hội quyết định ý thức xã hội.", author: "C.Mác & Ph.Ăng-ghen", source: "Hệ tư tưởng Đức", year: "1846" },
-  nhan_dan: { text: "Quần chúng nhân dân là chủ thể sáng tạo chân chính của lịch sử.", author: "V.I.Lênin", source: "Toàn tập V.I.Lênin", year: "1917" },
-  giai_cap: { text: "Lịch sử tất cả các xã hội tồn tại từ trước đến nay chỉ là lịch sử đấu tranh giai cấp.", author: "C.Mác & Ph.Ăng-ghen", source: "Tuyên ngôn Đảng Cộng sản", year: "1848" },
-  lich_su: { text: "Con người làm ra lịch sử của chính mình, nhưng không phải làm theo ý muốn tùy tiện.", author: "Karl Marx", source: "Ngày 18 tháng Sương mù", year: "1852" },
-  hanh_phuc: { text: "Hạnh phúc là đấu tranh.", author: "Karl Marx", source: "Lời tự bạch", year: "1865" },
-  idle_1: { text: "Vô luận việc gì đều do con người làm ra, và từ nhỏ đến to, từ gần đến xa, đều thế cả.", author: "Hồ Chí Minh", source: "Sửa đổi lối làm việc", year: "1947" },
-  idle_2: { text: "Vì lợi ích mười năm thì phải trồng cây, vì lợi ích trăm năm thì phải trồng người.", author: "Hồ Chí Minh", source: "Bài nói chuyện", year: "1958" },
+  core: { text: "Trong tính hiện thực của nó, bản chất con người là tổng hòa những quan hệ xã hội.", author: "Karl Marx" },
+  ca_nhan: { text: "Mỗi cá nhân là một thực thể xã hội mang tính cá nhân.", author: "Giáo trình Triết học" },
+  xa_hoi: { text: "Tồn tại xã hội quyết định ý thức xã hội.", author: "C.Mác & Ph.Ăng-ghen" },
+  nhan_dan: { text: "Quần chúng nhân dân là chủ thể sáng tạo chân chính của lịch sử.", author: "V.I.Lênin" },
+  giai_cap: { text: "Lịch sử tất cả các xã hội tồn tại từ trước đến nay chỉ là lịch sử đấu tranh giai cấp.", author: "C.Mác & Ph.Ăng-ghen" },
+  lich_su: { text: "Con người làm ra lịch sử của chính mình, nhưng không phải làm theo ý muốn tùy tiện.", author: "Karl Marx" },
+  hanh_phuc: { text: "Hạnh phúc là đấu tranh.", author: "Karl Marx" },
+  lanh_tu: { text: "Lãnh tụ là những người kiệt xuất, do phong trào quần chúng tạo ra và gắn bó mật thiết với quần chúng.", author: "Giáo trình Triết học" },
+  tap_the: { text: "Sự phát triển tự do của mỗi người là điều kiện cho sự phát triển tự do của tất cả mọi người.", author: "C.Mác & Ph.Ăng-ghen" },
 };
 
-const IDLE_KEYS = ['core', 'idle_1', 'nhan_dan', 'idle_2', 'giai_cap'];
+const IDLE_KEYS = ['core', 'lanh_tu', 'nhan_dan', 'tap_the', 'giai_cap'];
 
 const TypewriterText = ({ text }: { text: string }) => {
   const [displayedText, setDisplayedText] = useState('');
@@ -140,7 +138,7 @@ export default function Hero() {
 
           <AnimatedView>
             <p className="section-eyebrow text-base md:text-lg 2xl:text-xl mb-6 md:mb-8">
-              Triết học Mác – Lênin · Tư tưởng Hồ Chí Minh
+              Chủ nghĩa duy vật lịch sử · Triết học Mác – Lênin
             </p>
 
             <h1 className="font-serif font-bold leading-[1.05] mb-8 md:mb-10 2xl:mb-14 text-navy text-5xl md:text-6xl 2xl:text-8xl">
@@ -148,25 +146,23 @@ export default function Hero() {
               <br />
               <span className="hero-title-accent">TRONG TRIẾT HỌC</span>
               <br />
-              <span className="text-navy">MÁC – LÊNIN &amp;</span>
-              <br />
-              <em className="font-serif italic text-dred">Tư tưởng Hồ Chí Minh</em>
+              <span className="text-navy">MÁC – LÊNIN</span>
             </h1>
 
             <div className="leading-relaxed text-body/70 mb-10 md:mb-12 2xl:mb-16 text-xl md:text-2xl 2xl:text-3xl max-w-4xl">
-              Nghiên cứu toàn diện về quan niệm con người — từ{' '}
+              Nghiên cứu quan điểm về{' '}
               <Tooltip term="Bản thể luận" definition="Ngành triết học nghiên cứu bản chất của tồn tại. Trong triết học Mác, bản thể luận duy vật khẳng định vật chất là nền tảng của mọi thực tại, con người được quy định bởi tồn tại xã hội.">
                 bản chất xã hội
               </Tooltip>
-              , quan hệ biện chứng{' '}
-              <Tooltip term="Tất yếu lịch sử" definition="Quy luật khách quan trong sự phát triển xã hội — những điều kiện lịch sử nhất định tất yếu dẫn đến những kết quả nhất định, không phụ thuộc vào ý chí chủ quan của cá nhân.">
-                cá nhân–xã hội
+              {' '}của con người, mối quan hệ biện chứng{' '}
+              <Tooltip term="Cá nhân & Xã hội" definition="Sự thống nhất biện chứng: Xã hội giữ vai trò quyết định, cung cấp điều kiện để cá nhân phát triển; ngược lại, năng lực cá nhân góp phần thúc đẩy xã hội tiến bộ.">
+                cá nhân – tập thể
               </Tooltip>
-              , đến vai trò của quần chúng nhân dân và lãnh tụ. Con người vừa là sản phẩm của hoàn cảnh, vừa là{' '}
-              <Tooltip term="Chủ thể thực tiễn" definition="Con người thông qua hoạt động thực tiễn, đặc biệt là lao động sản xuất, để cải tạo tự nhiên và xã hội, qua đó tự sáng tạo ra chính bản thân mình và làm ra lịch sử.">
-                chủ thể thực tiễn
+              , cùng vai trò quyết định của quần chúng nhân dân và sự dẫn dắt của{' '}
+              <Tooltip term="Lãnh tụ" definition="Những cá nhân kiệt xuất xuất hiện từ phong trào quần chúng, có tầm nhìn vượt trội, nắm bắt được quy luật khách quan để định hướng và dẫn dắt tập thể.">
+                lãnh tụ
               </Tooltip>{' '}
-              cải tạo thế giới.
+              trong tiến trình lịch sử.
             </div>
 
             <div className="relative pl-6 2xl:pl-8 mb-12 2xl:mb-16 border-l-4 border-beige/60 min-h-40 flex flex-col justify-center">
@@ -191,10 +187,6 @@ export default function Hero() {
                     <cite className="not-italic font-sans font-bold text-dred tracking-wider uppercase text-sm md:text-base">
                       — {currentQuote.author}
                     </cite>
-                    <span className="w-6 h-px bg-navy/20 hidden sm:block"></span>
-                    <span className="font-sans text-[11px] md:text-xs tracking-widest text-navy/50 uppercase font-semibold bg-navy/5 px-2 py-1 rounded">
-                      {currentQuote.source} · {currentQuote.year}
-                    </span>
                   </div>
                 </motion.div>
               </AnimatePresence>
@@ -203,16 +195,16 @@ export default function Hero() {
             <div className="flex flex-col sm:flex-row gap-4 md:gap-6 mb-14 md:mb-16 2xl:mb-20">
               <a href="#section-canhan-xahoi" className="inline-flex items-center justify-center gap-3 px-8 py-5 md:px-10 md:py-6 2xl:px-14 2xl:py-8 rounded-2xl font-semibold text-white transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 bg-linear-to-br from-navy to-navy-light text-lg md:text-xl 2xl:text-2xl">
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" /><path d="M12 8v4l3 3" /></svg>
-                Khám phá nội dung
+                Cơ sở lý luận
               </a>
-              <a href="#section-hcm" className="inline-flex items-center justify-center gap-3 px-8 py-5 md:px-10 md:py-6 2xl:px-14 2xl:py-8 rounded-2xl font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-dred border-2 border-dred bg-transparent hover:bg-dred/5 text-lg md:text-xl 2xl:text-2xl">
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
-                Tư tưởng Hồ Chí Minh
+              <a href="#section-casestudy" className="inline-flex items-center justify-center gap-3 px-8 py-5 md:px-10 md:py-6 2xl:px-14 2xl:py-8 rounded-2xl font-semibold transition-all duration-300 hover:shadow-xl hover:-translate-y-1 text-dred border-2 border-dred bg-transparent hover:bg-dred/5 text-lg md:text-xl 2xl:text-2xl">
+                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2h2a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>
+                Phân tích tình huống
               </a>
             </div>
 
             <div className="pt-8 2xl:pt-12 border-t border-navy/10 grid grid-cols-3 gap-8 md:gap-12 2xl:gap-20">
-              {[ { value: '4', label: 'Chủ đề lớn', color: 'text-navy' }, { value: '12', label: 'Luận điểm', color: 'text-dred' }, { value: '∞', label: 'Giá trị thực tiễn', color: 'text-beige' } ].map(({ value, label, color }) => (
+              {[ { value: '2', label: 'Luận điểm lớn', color: 'text-navy' }, { value: '1', label: 'Tình huống', color: 'text-dred' }, { value: '∞', label: 'Giá trị thực tiễn', color: 'text-beige' } ].map(({ value, label, color }) => (
                 <div key={label}>
                   <p className={`font-serif font-bold ${color} text-5xl md:text-6xl 2xl:text-8xl leading-none`}>{value}</p>
                   <p className="text-body/50 font-medium mt-2 text-base md:text-lg 2xl:text-xl">{label}</p>
