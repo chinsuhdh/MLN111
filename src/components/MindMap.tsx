@@ -2,48 +2,59 @@ import { useRef, useState, useEffect } from 'react';
 import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import AnimatedView from './AnimatedView';
 
-// Tạo các hạt bụi lơ lửng trong không gian
-const generateParticles = (count: number) => {
+// Tạo các vì sao (background stars)
+const generateStars = (count: number) => {
   return Array.from({ length: count }).map((_, i) => ({
     id: i,
     x: Math.random() * 100,
     y: Math.random() * 100,
-    size: Math.random() * 3 + 1,
-    duration: Math.random() * 20 + 10,
-    delay: Math.random() * 5,
-    z: Math.random() * 200 - 100, // Thêm trục Z cho hạt bụi
+    size: Math.random() * 2 + 0.5,
+    opacity: Math.random() * 0.8 + 0.2,
+    twinkleDuration: Math.random() * 3 + 2,
+    twinkleDelay: Math.random() * 5,
   }));
 };
 
-export default function MindMap() {
+const generateSpaceDust = (count: number) => {
+  return Array.from({ length: count }).map((_, i) => ({
+    id: i,
+    x: Math.random() * 100,
+    y: Math.random() * 100,
+    size: Math.random() * 4 + 1,
+    duration: Math.random() * 30 + 15,
+    z: Math.random() * 300 - 150,
+  }));
+};
+
+export default function ConstellationMindMap() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
-  const [particles, setParticles] = useState<{id: number, x: number, y: number, size: number, duration: number, delay: number, z: number}[]>([]);
+  const [stars, setStars] = useState<{id: number, x: number, y: number, size: number, opacity: number, twinkleDuration: number, twinkleDelay: number}[]>([]);
+  const [spaceDust, setSpaceDust] = useState<{id: number, x: number, y: number, size: number, duration: number, z: number}[]>([]);
 
   useEffect(() => {
-    setParticles(generateParticles(40));
+    setStars(generateStars(150));
+    setSpaceDust(generateSpaceDust(40));
   }, []);
 
-  // --- MOUSE TRACKING & VẬT LÝ 2.5D ---
   const mouseX = useMotionValue(0);
   const mouseY = useMotionValue(0);
 
-  const springConfig = { damping: 30, stiffness: 100, mass: 2 };
+  const springConfig = { damping: 25, stiffness: 120, mass: 1.5 };
   const smoothX = useSpring(mouseX, springConfig);
   const smoothY = useSpring(mouseY, springConfig);
 
-  const rotateX = useTransform(smoothY, [-0.5, 0.5], [15, -15]);
-  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-15, 15]);
+  const rotateX = useTransform(smoothY, [-0.5, 0.5], [25, -25]);
+  const rotateY = useTransform(smoothX, [-0.5, 0.5], [-25, 25]);
 
-  // Phân tách chiều sâu (Parallax)
-  const layerOuterX = useTransform(smoothX, [-0.5, 0.5], [-15, 15]);
-  const layerOuterY = useTransform(smoothY, [-0.5, 0.5], [-15, 15]);
+  const layerOuterX = useTransform(smoothX, [-0.5, 0.5], [-20, 20]);
+  const layerOuterY = useTransform(smoothY, [-0.5, 0.5], [-20, 20]);
   
-  const layerInnerX = useTransform(smoothX, [-0.5, 0.5], [-30, 30]);
-  const layerInnerY = useTransform(smoothY, [-0.5, 0.5], [-30, 30]);
+  const layerInnerX = useTransform(smoothX, [-0.5, 0.5], [-50, 50]);
+  const layerInnerY = useTransform(smoothY, [-0.5, 0.5], [-50, 50]);
 
-  const layerCenterX = useTransform(smoothX, [-0.5, 0.5], [-60, 60]);
-  const layerCenterY = useTransform(smoothY, [-0.5, 0.5], [-60, 60]);
+  const layerCenterX = useTransform(smoothX, [-0.5, 0.5], [-90, 90]);
+  const layerCenterY = useTransform(smoothY, [-0.5, 0.5], [-90, 90]);
 
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!containerRef.current) return;
@@ -54,7 +65,17 @@ export default function MindMap() {
     mouseY.set(yPct);
   };
 
-  const handleMouseLeave = () => {
+  const handleTouchMove = (e: React.TouchEvent) => {
+    if (!containerRef.current) return;
+    const touch = e.touches[0];
+    const rect = containerRef.current.getBoundingClientRect();
+    const xPct = (touch.clientX - rect.left) / rect.width - 0.5;
+    const yPct = (touch.clientY - rect.top) / rect.height - 0.5;
+    mouseX.set(xPct);
+    mouseY.set(yPct);
+  };
+
+  const handleReset = () => {
     mouseX.set(0);
     mouseY.set(0);
   };
@@ -67,240 +88,275 @@ export default function MindMap() {
   };
 
   return (
-    <section id="section-mindmap" className="py-24 lg:py-36 bg-[#0B1221] text-[#F8F5EF] relative overflow-hidden">
+    <section id="section-mindmap" className="py-24 lg:py-36 bg-[#030712] text-[#E2E8F0] relative overflow-hidden">
       
-      {/* KHÔNG GIAN NỀN TRỐNG ĐỒNG */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none mix-blend-screen flex items-center justify-center">
-        <div className="w-[150vw] h-[150vw] md:w-[100vw] md:h-[100vw] rounded-full border-[40px] border-dashed border-[#D4A373] animate-[spin_120s_linear_infinite]" />
-        <div className="absolute w-[120vw] h-[120vw] md:w-[80vw] md:h-[80vw] rounded-full border-[20px] border-dotted border-[#D4A373] animate-[spin_90s_linear_infinite_reverse]" />
+      {/* VŨ TRỤ: Bầu trời đầy sao */}
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(16,24,39,1)_0%,rgba(3,7,18,1)_100%)]" />
+        {stars.map((star) => (
+          <motion.div
+            key={`star-${star.id}`}
+            className="absolute rounded-full bg-white"
+            style={{ 
+              left: `${star.x}%`, top: `${star.y}%`, 
+              width: star.size, height: star.size,
+              opacity: star.opacity 
+            }}
+            animate={{ opacity: [star.opacity * 0.3, star.opacity, star.opacity * 0.3] }}
+            transition={{ duration: star.twinkleDuration, delay: star.twinkleDelay, repeat: Infinity, ease: "easeInOut" }}
+          />
+        ))}
       </div>
 
-      <div className="w-full max-w-none mx-auto px-6 md:px-16 2xl:px-28 relative z-10">
-        <AnimatedView className="text-center mb-16 lg:mb-20">
-          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#D4A373] mb-4">Phần 04 · Không gian Tư tưởng</p>
-          <h2 className="font-serif font-bold text-white text-4xl md:text-5xl lg:text-6xl tracking-tight">
+      <div className="w-full max-w-none mx-auto px-4 md:px-16 2xl:px-28 relative z-10">
+        <AnimatedView className="text-center mb-16 lg:mb-24">
+          <p className="font-mono text-xs uppercase tracking-[0.2em] text-[#64FFDA] mb-4 drop-shadow-[0_0_8px_rgba(100,255,218,0.5)]">
+            Phần 04 · Không gian Tư tưởng
+          </p>
+          <h2 className="font-serif font-bold text-transparent bg-clip-text bg-gradient-to-b from-white to-[#94A3B8] text-4xl md:text-5xl lg:text-6xl tracking-tight">
             Chòm sao Khái niệm
           </h2>
-          <p className="text-white/50 max-w-2xl mx-auto mt-6 text-base md:text-lg leading-relaxed">
-            Mô hình tương tác ba chiều thể hiện sự vận động biện chứng giữa các thực thể cốt lõi trong triết học Mác–Lênin.
+          <p className="text-[#94A3B8] max-w-2xl mx-auto mt-6 text-base md:text-lg leading-relaxed">
+            Khám phá mạng lưới liên kết đa chiều. Vuốt hoặc chạm vào các vì sao để kết nối không gian.
           </p>
-          <div className="w-24 h-0.5 mx-auto mt-8 bg-gradient-to-r from-transparent via-[#8B1E3F] to-transparent" />
         </AnimatedView>
 
-        <AnimatedView delay={0.2} className="max-w-[1200px] mx-auto w-full">
+        <AnimatedView delay={0.2} className="max-w-[1440px] mx-auto w-full">
           <div 
-            className="relative w-full p-6 lg:p-12"
-            style={{ perspective: 2000 }}
+            className="relative w-full p-2 md:p-6 lg:p-12 touch-none"
+            style={{ perspective: 1500 }}
             ref={containerRef}
             onMouseMove={handleMouseMove}
-            onMouseLeave={handleMouseLeave}
+            onMouseLeave={handleReset}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleReset}
+            onTouchCancel={handleReset}
           >
-            {/* HẠT BỤI VỚI Z-DEPTH */}
+            {/* BỤI VŨ TRỤ */}
             <div className="absolute inset-0 pointer-events-none" style={{ transformStyle: 'preserve-3d' }}>
-              {particles.map((p) => (
+              {spaceDust.map((p) => (
                 <motion.div
-                  key={p.id}
-                  className="absolute rounded-full bg-[#D4A373]"
+                  key={`dust-${p.id}`}
+                  className="absolute rounded-full bg-[#64FFDA]"
                   style={{ 
                     left: `${p.x}%`, top: `${p.y}%`, 
                     width: p.size, height: p.size,
                     translateZ: p.z,
-                    filter: p.z < 0 ? 'blur(2px)' : 'none',
-                    opacity: p.z < 0 ? 0.3 : 0.6
+                    filter: p.z < 0 ? 'blur(3px)' : 'blur(1px)',
+                    opacity: p.z < 0 ? 0.2 : 0.5
                   }}
                   animate={{ 
                     y: [0, -100, 0], 
-                    x: [0, Math.random() * 20 - 10, 0],
-                    opacity: [0, p.z < 0 ? 0.3 : 0.6, 0] 
+                    x: [0, Math.random() * 40 - 20, 0],
                   }}
-                  transition={{ duration: p.duration, delay: p.delay, repeat: Infinity, ease: "linear" }}
+                  transition={{ duration: p.duration, repeat: Infinity, ease: "linear" }}
                 />
               ))}
             </div>
 
-            {/* SVG TRUNG TÂM VỚI CAMERA DRIFT NHẸ */}
+            {/* LAYER CHÍNH: MẶT PHẲNG CHÒM SAO */}
             <motion.div 
               style={{ rotateX, rotateY, transformStyle: 'preserve-3d' }}
-              animate={{ y: [0, -8, 0] }} // Camera drift nhẹ theo trục Y
-              transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-              className="relative w-full aspect-[16/10] min-h-[500px]"
+              animate={{ y: [0, -10, 0] }}
+              transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+              className="relative w-full aspect-[10/12] md:aspect-[16/10] min-h-[70vh] md:min-h-[700px] scale-[1.1] sm:scale-100"
             >
               <svg viewBox="0 0 960 620" fill="none" className="w-full h-full overflow-visible">
                 <defs>
-                  <radialGradient id="mm-center" cx="50%" cy="50%" r="50%">
-                    <stop offset="0%" stopColor="#A52348" />
-                    <stop offset="100%" stopColor="#6D1832" />
+                  {/* --- KHÔNG DÙNG BLUR FILTER NỮA. DÙNG RADIAL GRADIENT ĐỂ TRÒN HOÀN HẢO --- */}
+                  
+                  {/* SUN - LÕI TRUNG TÂM */}
+                  <radialGradient id="star-sun" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#FFF" />
+                    <stop offset="20%" stopColor="#FEF08A" />
+                    <stop offset="100%" stopColor="#EAB308" />
                   </radialGradient>
-                  <radialGradient id="mm-navy" cx="40%" cy="35%" r="65%">
-                    <stop offset="0%" stopColor="#2A4F80" />
-                    <stop offset="100%" stopColor="#1E3A5F" />
-                  </radialGradient>
-                  <radialGradient id="mm-beige" cx="40%" cy="35%" r="65%">
-                    <stop offset="0%" stopColor="#E0BF9A" />
-                    <stop offset="100%" stopColor="#C49A6C" />
+                  <radialGradient id="glow-sun" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#CA8A04" stopOpacity="0.7" />
+                    <stop offset="50%" stopColor="#854D0E" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#422006" stopOpacity="0" />
                   </radialGradient>
                   
-                  <filter id="glow-strong" x="-50%" y="-50%" width="200%" height="200%">
-                    <feGaussianBlur stdDeviation="15" result="blur" />
-                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                  </filter>
-                  <filter id="glow-soft" x="-30%" y="-30%" width="160%" height="160%">
-                    <feGaussianBlur stdDeviation="6" result="blur" />
-                    <feMerge><feMergeNode in="blur" /><feMergeNode in="SourceGraphic" /></feMerge>
-                  </filter>
+                  {/* CYAN - XANH NGỌC */}
+                  <radialGradient id="star-cyan" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#FFF" />
+                    <stop offset="30%" stopColor="#5EEAD4" />
+                    <stop offset="100%" stopColor="#0D9488" />
+                  </radialGradient>
+                  <radialGradient id="glow-cyan" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#0F766E" stopOpacity="0.8" />
+                    <stop offset="50%" stopColor="#115E59" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#042F2E" stopOpacity="0" />
+                  </radialGradient>
+
+                  {/* PURPLE - TÍM */}
+                  <radialGradient id="star-purple" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#FFF" />
+                    <stop offset="30%" stopColor="#D8B4FE" />
+                    <stop offset="100%" stopColor="#9333EA" />
+                  </radialGradient>
+                  <radialGradient id="glow-purple" cx="50%" cy="50%" r="50%">
+                    <stop offset="0%" stopColor="#7E22CE" stopOpacity="0.8" />
+                    <stop offset="50%" stopColor="#581C87" stopOpacity="0.2" />
+                    <stop offset="100%" stopColor="#3B0764" stopOpacity="0" />
+                  </radialGradient>
                 </defs>
 
-                {/* LAYER ĐƯỜNG LIÊN KẾT (XA NHẤT + BỊ BLUR) */}
+                {/* ================= BACKGROUND LINES ================= */}
+                {/* Đặt opacity = 0 mặc định, chỉ sáng khi nhấn */}
                 <motion.g 
-                  style={{ x: layerOuterX, y: layerOuterY, translateZ: -80, filter: 'blur(1.5px)' }} 
-                  opacity={hoveredNode ? 0.2 : 0.8} 
-                  className="transition-opacity duration-500"
+                  style={{ x: layerOuterX, y: layerOuterY, translateZ: -120 }} 
+                  opacity={hoveredNode ? 0.3 : 0} 
+                  className="transition-opacity duration-700 pointer-events-none"
                 >
-                  <line x1="480" y1="130" x2="760" y2="310" stroke="#8B1E3F" strokeWidth="1" strokeDasharray="5 7" />
-                  <line x1="760" y1="310" x2="480" y2="490" stroke="#8B1E3F" strokeWidth="1" strokeDasharray="5 7" />
-                  <line x1="480" y1="490" x2="200" y2="310" stroke="#1E3A5F" strokeWidth="1" strokeDasharray="5 7" />
-                  <line x1="200" y1="310" x2="480" y2="130" stroke="#1E3A5F" strokeWidth="1" strokeDasharray="5 7" />
-
-                  <path d="M480 310 L480 148 M480 310 L742 310 M480 310 L480 472 M480 310 L218 310" 
-                        stroke="#D4A373" strokeWidth="2.5" strokeDasharray="8 6" opacity="0.5"
-                        className="animate-[dashMove_20s_linear_infinite]" />
-                </motion.g>
-
-                {/* LAYER TIA NỐI VỆ TINH */}
-                <motion.g style={{ x: layerInnerX, y: layerInnerY, translateZ: 20 }}>
-                  <g stroke="rgba(255,255,255,0.15)" strokeWidth="1.2" strokeDasharray="4 5" opacity={isDimmed('NODE') ? 0.1 : 1} className="transition-opacity duration-500">
-                    <line x1="480" y1="102" x2="330" y2="52" /><line x1="480" y1="102" x2="630" y2="52" />
-                    <line x1="788" y1="310" x2="890" y2="190" /><line x1="788" y1="310" x2="890" y2="430" />
-                    <line x1="172" y1="310" x2="70" y2="190" /><line x1="172" y1="310" x2="70" y2="430" />
-                    <line x1="480" y1="518" x2="360" y2="585" /><line x1="480" y1="518" x2="600" y2="585" />
+                  <g stroke="#334155" strokeWidth="1" strokeDasharray="3 8">
+                    <line x1="100" y1="100" x2="860" y2="520" />
+                    <line x1="860" y1="100" x2="100" y2="520" />
                   </g>
                 </motion.g>
 
-                {/* 8 NÚT VỆ TINH NHỎ (FLOATING) */}
+                {/* ================= TIA NỐI CONSTELLATION ================= */}
+                {/* Ẩn mặc định (opacity: 0). Sáng rực rỡ khi nhấn vào bất kỳ Node nào */}
+                <motion.g 
+                  style={{ x: layerInnerX, y: layerInnerY, translateZ: 0 }}
+                  opacity={hoveredNode ? 0.8 : 0} 
+                  className="transition-opacity duration-500 pointer-events-none"
+                >
+                  <path d="M480 310 L480 120 M480 310 L765 310 M480 310 L480 500 M480 310 L195 310" 
+                        stroke="#64FFDA" strokeWidth="2.5" strokeDasharray="6 6" opacity="0.8"
+                        className="animate-[dashMove_15s_linear_infinite]" />
+                  
+                  <polygon points="480,120 765,310 480,500 195,310" 
+                           stroke="#A78BFA" strokeWidth="1" fill="none" opacity="0.4" />
+
+                  <g stroke="#94A3B8" strokeWidth="1.5" strokeDasharray="2 4" opacity="0.6">
+                    <line x1="480" y1="120" x2="330" y2="48" /><line x1="480" y1="120" x2="630" y2="48" />
+                    <line x1="765" y1="310" x2="890" y2="188" /><line x1="765" y1="310" x2="890" y2="432" />
+                    <line x1="195" y1="310" x2="70" y2="188" /><line x1="195" y1="310" x2="70" y2="432" />
+                    <line x1="480" y1="500" x2="360" y2="585" /><line x1="480" y1="500" x2="600" y2="585" />
+                  </g>
+                </motion.g>
+
+                {/* ================= 8 HÀNH TINH VỆ TINH ================= */}
                 <motion.g 
                   style={{ x: layerInnerX, y: layerInnerY, translateZ: 40 }} 
-                  animate={{ y: [-3, 3, -3] }} 
-                  transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
                   opacity={isDimmed('NODE') ? 0.2 : 1} 
-                  className="transition-opacity duration-500 cursor-default pointer-events-none"
+                  className="transition-opacity duration-500 cursor-default"
                 >
-                  {/* Bản chất loài */}
-                  <g className="animate-[orbitSlow_10s_linear_infinite]" style={{ transformOrigin: '330px 48px' }}>
-                    <circle cx="330" cy="48" r="30" fill="rgba(30,58,95,0.8)" stroke="rgba(212,163,115,0.4)" strokeWidth="1.2" />
-                    <text x="330" y="44" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">Bản chất</text>
-                    <text x="330" y="57" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">loài</text>
+                  <g style={{ transformOrigin: '330px 48px' }} className="animate-[breatheCenter_6s_ease-in-out_infinite]">
+                    <circle cx="330" cy="48" r="35" fill="url(#glow-cyan)" />
+                    <circle cx="330" cy="48" r="10" fill="url(#star-cyan)" />
+                    <text x="330" y="22" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">BẢN CHẤT LOÀI</text>
                   </g>
-                  {/* Tính cá thể */}
-                  <g className="animate-[orbitSlow_12s_linear_infinite_reverse]" style={{ transformOrigin: '630px 48px' }}>
-                    <circle cx="630" cy="48" r="30" fill="rgba(30,58,95,0.8)" stroke="rgba(212,163,115,0.4)" strokeWidth="1.2" />
-                    <text x="630" y="44" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">Tính cá</text>
-                    <text x="630" y="57" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">thể</text>
+                  <g style={{ transformOrigin: '630px 48px' }} className="animate-[breatheCenter_7s_ease-in-out_infinite_reverse]">
+                    <circle cx="630" cy="48" r="32" fill="url(#glow-purple)" />
+                    <circle cx="630" cy="48" r="8" fill="url(#star-purple)" />
+                    <text x="630" y="22" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">TÍNH CÁ THỂ</text>
                   </g>
-                  {/* ... CÁC VỆ TINH KHÁC GIỮ NGUYÊN CODE BÊN TRONG ... */}
-                  <g className="animate-[orbitSlow_15s_linear_infinite]" style={{ transformOrigin: '890px 188px' }}>
-                    <circle cx="890" cy="188" r="30" fill="rgba(139,30,63,0.8)" stroke="rgba(212,163,115,0.4)" strokeWidth="1.2" />
-                    <text x="890" y="184" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">Giai</text>
-                    <text x="890" y="197" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">cấp</text>
+                  <g style={{ transformOrigin: '890px 188px' }} className="animate-[breatheCenter_5s_ease-in-out_infinite]">
+                    <circle cx="890" cy="188" r="40" fill="url(#glow-cyan)" />
+                    <circle cx="890" cy="188" r="12" fill="url(#star-cyan)" />
+                    <text x="890" y="235" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">GIAI CẤP</text>
                   </g>
-                  <g className="animate-[orbitSlow_14s_linear_infinite_reverse]" style={{ transformOrigin: '890px 432px' }}>
-                    <circle cx="890" cy="432" r="30" fill="rgba(139,30,63,0.8)" stroke="rgba(212,163,115,0.4)" strokeWidth="1.2" />
-                    <text x="890" y="428" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">Nhà</text>
-                    <text x="890" y="441" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="600" fill="white" opacity="0.9">nước</text>
+                  <g style={{ transformOrigin: '890px 432px' }} className="animate-[breatheCenter_8s_ease-in-out_infinite]">
+                    <circle cx="890" cy="432" r="35" fill="url(#glow-purple)" />
+                    <circle cx="890" cy="432" r="10" fill="url(#star-purple)" />
+                    <text x="890" y="475" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">NHÀ NƯỚC</text>
                   </g>
-                  <g className="animate-[orbitSlow_11s_linear_infinite]" style={{ transformOrigin: '70px 188px' }}>
-                    <circle cx="70" cy="188" r="30" fill="rgba(212,163,115,0.8)" stroke="rgba(30,58,95,0.4)" strokeWidth="1.2" />
-                    <text x="70" y="184" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="700" fill="#152B47" opacity="0.95">Định</text>
-                    <text x="70" y="197" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="700" fill="#152B47" opacity="0.95">hướng</text>
+                  <g style={{ transformOrigin: '70px 188px' }} className="animate-[breatheCenter_6.5s_ease-in-out_infinite]">
+                    <circle cx="70" cy="188" r="38" fill="url(#glow-purple)" />
+                    <circle cx="70" cy="188" r="11" fill="url(#star-purple)" />
+                    <text x="70" y="235" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">ĐỊNH HƯỚNG</text>
                   </g>
-                  <g className="animate-[orbitSlow_13s_linear_infinite_reverse]" style={{ transformOrigin: '70px 432px' }}>
-                    <circle cx="70" cy="432" r="30" fill="rgba(212,163,115,0.8)" stroke="rgba(30,58,95,0.4)" strokeWidth="1.2" />
-                    <text x="70" y="428" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="700" fill="#152B47" opacity="0.95">Tổ</text>
-                    <text x="70" y="441" textAnchor="middle" fontFamily="Inter" fontSize="8" fontWeight="700" fill="#152B47" opacity="0.95">chức</text>
+                  <g style={{ transformOrigin: '70px 432px' }} className="animate-[breatheCenter_7.5s_ease-in-out_infinite_reverse]">
+                    <circle cx="70" cy="432" r="32" fill="url(#glow-cyan)" />
+                    <circle cx="70" cy="432" r="8" fill="url(#star-cyan)" />
+                    <text x="70" y="475" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">TỔ CHỨC</text>
                   </g>
-                  <g className="animate-[orbitSlow_16s_linear_infinite]" style={{ transformOrigin: '360px 585px' }}>
-                    <circle cx="360" cy="585" r="30" fill="rgba(30,58,95,0.8)" stroke="rgba(212,163,115,0.4)" strokeWidth="1.2" />
-                    <text x="360" y="581" textAnchor="middle" fontFamily="Inter" fontSize="7.5" fontWeight="600" fill="white" opacity="0.9">Lực lượng</text>
-                    <text x="360" y="594" textAnchor="middle" fontFamily="Inter" fontSize="7.5" fontWeight="600" fill="white" opacity="0.9">sản xuất</text>
+                  <g style={{ transformOrigin: '360px 585px' }} className="animate-[breatheCenter_5.5s_ease-in-out_infinite]">
+                    <circle cx="360" cy="585" r="35" fill="url(#glow-cyan)" />
+                    <circle cx="360" cy="585" r="10" fill="url(#star-cyan)" />
+                    <text x="360" y="625" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">LỰC LƯỢNG SX</text>
                   </g>
-                  <g className="animate-[orbitSlow_12s_linear_infinite_reverse]" style={{ transformOrigin: '600px 585px' }}>
-                    <circle cx="600" cy="585" r="30" fill="rgba(30,58,95,0.8)" stroke="rgba(212,163,115,0.4)" strokeWidth="1.2" />
-                    <text x="600" y="581" textAnchor="middle" fontFamily="Inter" fontSize="7.5" fontWeight="600" fill="white" opacity="0.9">CM</text>
-                    <text x="600" y="594" textAnchor="middle" fontFamily="Inter" fontSize="7.5" fontWeight="600" fill="white" opacity="0.9">Xã hội</text>
+                  <g style={{ transformOrigin: '600px 585px' }} className="animate-[breatheCenter_6.2s_ease-in-out_infinite]">
+                    <circle cx="600" cy="585" r="40" fill="url(#glow-purple)" />
+                    <circle cx="600" cy="585" r="12" fill="url(#star-purple)" />
+                    <text x="600" y="625" textAnchor="middle" fontFamily="Inter" fontSize="10" fontWeight="400" fill="#E2E8F0" letterSpacing="1">CM XÃ HỘI</text>
                   </g>
                 </motion.g>
 
-                {/* 4 NÚT CHÍNH VỚI FLOATING & Z-DEPTH */}
-                <motion.g style={{ x: layerInnerX, y: layerInnerY, translateZ: 80 }}>
+                {/* ================= 4 NGÔI SAO CHÍNH ================= */}
+                <motion.g style={{ x: layerCenterX, y: layerCenterY, translateZ: 120 }}>
+                  
+                  {/* onPointer kết hợp cả Hover chuột lẫn Chạm ngón tay */}
                   <motion.g 
-                    animate={{ y: [-5, 5, -5] }} transition={{ duration: 5, repeat: Infinity, ease: "easeInOut" }}
-                    onMouseEnter={() => setHoveredNode('CA_NHAN')} onMouseLeave={() => setHoveredNode(null)} 
+                    onPointerEnter={() => setHoveredNode('CA_NHAN')} 
+                    onPointerLeave={() => setHoveredNode(null)} 
                     className="cursor-pointer transition-all duration-500" opacity={isDimmed('CA_NHAN') ? 0.3 : 1}>
-                    <circle cx="480" cy="120" r="52" fill="url(#mm-navy)" filter={hoveredNode === 'CA_NHAN' ? "url(#glow-soft)" : ""} opacity="0.97" />
-                    <circle cx="480" cy="120" r="52" stroke="#D4A373" strokeWidth="1.8" fill="none" opacity="0.45" />
-                    <text x="480" y="114" textAnchor="middle" fontFamily="Inter" fontSize="11" fontWeight="800" fill="white" opacity="0.97">CÁ NHÂN</text>
-                    <text x="480" y="130" textAnchor="middle" fontFamily="Inter" fontSize="8" fill="rgba(255,255,255,0.6)">Individual</text>
+                    <circle cx="480" cy="120" r="70" fill="url(#glow-cyan)" />
+                    <circle cx="480" cy="120" r="25" fill="url(#star-cyan)" />
+                    <circle cx="480" cy="120" r="40" stroke="#2DD4BF" strokeWidth="1.5" fill="none" opacity="0.4" strokeDasharray="4 4" className="animate-[spin_15s_linear_infinite]" style={{ transformOrigin: '480px 120px' }} />
+                    <text x="480" y="70" textAnchor="middle" fontFamily="Inter" fontSize="14" fontWeight="600" fill="#FFF" letterSpacing="2" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>CÁ NHÂN</text>
                   </motion.g>
 
                   <motion.g 
-                    animate={{ y: [4, -4, 4] }} transition={{ duration: 6.5, repeat: Infinity, ease: "easeInOut" }}
-                    onMouseEnter={() => setHoveredNode('XA_HOI')} onMouseLeave={() => setHoveredNode(null)} 
+                    onPointerEnter={() => setHoveredNode('XA_HOI')} 
+                    onPointerLeave={() => setHoveredNode(null)} 
                     className="cursor-pointer transition-all duration-500" opacity={isDimmed('XA_HOI') ? 0.3 : 1}>
-                    <circle cx="765" cy="310" r="52" fill="url(#mm-center)" filter={hoveredNode === 'XA_HOI' ? "url(#glow-soft)" : ""} opacity="0.95" />
-                    <circle cx="765" cy="310" r="52" stroke="#D4A373" strokeWidth="1.8" fill="none" opacity="0.45" />
-                    <text x="765" y="304" textAnchor="middle" fontFamily="Inter" fontSize="11" fontWeight="800" fill="white" opacity="0.97">XÃ HỘI</text>
-                    <text x="765" y="320" textAnchor="middle" fontFamily="Inter" fontSize="8" fill="rgba(255,255,255,0.6)">Society</text>
+                    <circle cx="765" cy="310" r="80" fill="url(#glow-purple)" />
+                    <circle cx="765" cy="310" r="28" fill="url(#star-purple)" />
+                    <circle cx="765" cy="310" r="45" stroke="#A78BFA" strokeWidth="1.5" fill="none" opacity="0.4" strokeDasharray="4 4" className="animate-[spin_20s_linear_infinite]" style={{ transformOrigin: '765px 310px' }} />
+                    <text x="765" y="260" textAnchor="middle" fontFamily="Inter" fontSize="14" fontWeight="600" fill="#FFF" letterSpacing="2" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>XÃ HỘI</text>
                   </motion.g>
 
                   <motion.g 
-                    animate={{ y: [-4, 4, -4] }} transition={{ duration: 5.5, repeat: Infinity, ease: "easeInOut" }}
-                    onMouseEnter={() => setHoveredNode('LANH_TU')} onMouseLeave={() => setHoveredNode(null)} 
+                    onPointerEnter={() => setHoveredNode('LANH_TU')} 
+                    onPointerLeave={() => setHoveredNode(null)} 
                     className="cursor-pointer transition-all duration-500" opacity={isDimmed('LANH_TU') ? 0.3 : 1}>
-                    <circle cx="195" cy="310" r="52" fill="url(#mm-beige)" filter={hoveredNode === 'LANH_TU' ? "url(#glow-soft)" : ""} opacity="0.97" />
-                    <circle cx="195" cy="310" r="52" stroke="#1E3A5F" strokeWidth="1.8" fill="none" opacity="0.45" />
-                    <text x="195" y="304" textAnchor="middle" fontFamily="Inter" fontSize="11" fontWeight="800" fill="#152B47" opacity="0.97">LÃNH TỤ</text>
-                    <text x="195" y="320" textAnchor="middle" fontFamily="Inter" fontSize="8" fill="rgba(21,43,71,0.65)">Leader</text>
+                    <circle cx="195" cy="310" r="70" fill="url(#glow-purple)" />
+                    <circle cx="195" cy="310" r="25" fill="url(#star-purple)" />
+                    <circle cx="195" cy="310" r="40" stroke="#A78BFA" strokeWidth="1.5" fill="none" opacity="0.4" strokeDasharray="4 4" className="animate-[spin_15s_linear_infinite_reverse]" style={{ transformOrigin: '195px 310px' }} />
+                    <text x="195" y="260" textAnchor="middle" fontFamily="Inter" fontSize="14" fontWeight="600" fill="#FFF" letterSpacing="2" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>LÃNH TỤ</text>
                   </motion.g>
 
                   <motion.g 
-                    animate={{ y: [5, -5, 5] }} transition={{ duration: 7, repeat: Infinity, ease: "easeInOut" }}
-                    onMouseEnter={() => setHoveredNode('QUAN_CHUNG')} onMouseLeave={() => setHoveredNode(null)} 
+                    onPointerEnter={() => setHoveredNode('QUAN_CHUNG')} 
+                    onPointerLeave={() => setHoveredNode(null)} 
                     className="cursor-pointer transition-all duration-500" opacity={isDimmed('QUAN_CHUNG') ? 0.3 : 1}>
-                    <circle cx="480" cy="500" r="52" fill="url(#mm-navy)" filter={hoveredNode === 'QUAN_CHUNG' ? "url(#glow-soft)" : ""} opacity="0.97" />
-                    <circle cx="480" cy="500" r="52" stroke="#D4A373" strokeWidth="1.8" fill="none" opacity="0.45" />
-                    <text x="480" y="491" textAnchor="middle" fontFamily="Inter" fontSize="9.5" fontWeight="800" fill="white" opacity="0.97">QUẦN CHÚNG</text>
-                    <text x="480" y="507" textAnchor="middle" fontFamily="Inter" fontSize="9.5" fontWeight="800" fill="white" opacity="0.97">NHÂN DÂN</text>
+                    <circle cx="480" cy="500" r="80" fill="url(#glow-cyan)" />
+                    <circle cx="480" cy="500" r="28" fill="url(#star-cyan)" />
+                    <circle cx="480" cy="500" r="45" stroke="#2DD4BF" strokeWidth="1.5" fill="none" opacity="0.4" strokeDasharray="4 4" className="animate-[spin_18s_linear_infinite]" style={{ transformOrigin: '480px 500px' }} />
+                    <text x="480" y="565" textAnchor="middle" fontFamily="Inter" fontSize="14" fontWeight="600" fill="#FFF" letterSpacing="2" style={{ textShadow: '0 2px 8px rgba(0,0,0,0.8)' }}>QUẦN CHÚNG</text>
                   </motion.g>
                 </motion.g>
 
-                {/* NÚT TRUNG TÂM (CON NGƯỜI) - CAO NHẤT */}
+                {/* ================= NGÔI SAO TRUNG TÂM ================= */}
                 <motion.g 
-                  style={{ x: layerCenterX, y: layerCenterY, translateZ: 150 }}
-                  onMouseEnter={() => setHoveredNode('CENTER')} 
-                  onMouseLeave={() => setHoveredNode(null)}
+                  style={{ x: layerCenterX, y: layerCenterY, translateZ: 250 }}
+                  onPointerEnter={() => setHoveredNode('CENTER')} 
+                  onPointerLeave={() => setHoveredNode(null)}
                   className="cursor-crosshair transition-opacity duration-500"
                 >
-                  <motion.g animate={{ y: [-6, 6, -6] }} transition={{ duration: 4.5, repeat: Infinity, ease: "easeInOut" }} className="animate-[breatheCenter_4s_ease-in-out_infinite]">
-                    <circle cx="480" cy="310" r="80" fill="url(#mm-center)" filter="url(#glow-strong)" opacity="0.97" />
-                    <circle cx="480" cy="310" r="85" stroke="#D4A373" strokeWidth="1.5" fill="none" opacity="0.8" className="animate-[spin_10s_linear_infinite]" strokeDasharray="10 20" />
-                    <circle cx="480" cy="310" r="68" stroke="#F8F5EF" strokeWidth="0.8" fill="none" opacity="0.25" />
-                    <text x="480" y="298" textAnchor="middle" fontFamily="Inter" fontSize="12" fontWeight="800" fill="white" opacity="0.97" letterSpacing="0.5">CON NGƯỜI</text>
-                    <text x="480" y="316" textAnchor="middle" fontFamily="Inter" fontSize="9" fill="#D4A373" opacity="0.9">Tổng hòa các</text>
-                    <text x="480" y="330" textAnchor="middle" fontFamily="Inter" fontSize="9" fill="#D4A373" opacity="0.9">quan hệ xã hội</text>
+                  <motion.g animate={{ scale: [1, 1.05, 1] }} transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}>
+                    
+                    {/* Hào quang lớn nhất (thay thế triệt để ô vuông sáng) */}
+                    <circle cx="480" cy="310" r="140" fill="url(#glow-sun)" />
+                    {/* Lõi rực rỡ */}
+                    <circle cx="480" cy="310" r="40" fill="url(#star-sun)" />
+                    
+                    {/* Vòng xoay */}
+                    <circle cx="480" cy="310" r="80" stroke="#FDE047" strokeWidth="1.5" fill="none" opacity="0.6" strokeDasharray="15 30" className="animate-[spin_12s_linear_infinite]" style={{ transformOrigin: '480px 310px' }} />
+                    <circle cx="480" cy="310" r="95" stroke="#FFF" strokeWidth="0.5" fill="none" opacity="0.3" className="animate-[spin_20s_linear_infinite_reverse]" style={{ transformOrigin: '480px 310px' }} />
+                    
+                    {/* Text đã được gỡ bỏ thẻ <rect> nền vuông, sử dụng textShadow đậm để tạo chiều sâu */}
+                    <text x="480" y="315" textAnchor="middle" fontFamily="Inter" fontSize="18" fontWeight="800" fill="#FFF" letterSpacing="3" style={{ textShadow: '0 4px 15px rgba(0,0,0,1), 0 0 10px #FDE047' }}>
+                      CON NGƯỜI
+                    </text>
                   </motion.g>
                 </motion.g>
-
-                {/* HẠT SVG NHỎ ĐIỂM XUYẾT */}
-                <circle cx="155" cy="120" r="3.5" fill="#D4A373" opacity="0.45" className="animate-[pulse-circle_3.5s_ease-in-out_infinite]" style={{ animationDelay: '0.4s' }} />
-                <circle cx="810" cy="130" r="3" fill="#8B1E3F" opacity="0.4" className="animate-[pulse-circle_3.5s_ease-in-out_infinite]" style={{ animationDelay: '1.1s' }} />
-                <circle cx="840" cy="480" r="4" fill="#1E3A5F" opacity="0.4" className="animate-[pulse-circle_3.5s_ease-in-out_infinite]" style={{ animationDelay: '1.8s' }} />
-                <circle cx="120" cy="490" r="3.5" fill="#D4A373" opacity="0.4" className="animate-[pulse-circle_3.5s_ease-in-out_infinite]" style={{ animationDelay: '0.7s' }} />
-                <circle cx="480" cy="40" r="3" fill="#8B1E3F" opacity="0.35" className="animate-[pulse-circle_3.5s_ease-in-out_infinite]" style={{ animationDelay: '1.4s' }} />
 
               </svg>
             </motion.div>
-            
-            {/* POST PROCESSING EFFECT: LỚP VIGNETTE MỜ VIỀN */}
-            <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_30%,rgba(11,18,33,0.7)_100%)] mix-blend-multiply rounded-[2.5rem]" />
           </div>
         </AnimatedView>
       </div>
